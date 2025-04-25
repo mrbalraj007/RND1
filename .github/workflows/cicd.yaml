@@ -1,0 +1,38 @@
+name: CI/CD via Self-Hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Hello World
+        run: |
+          echo "Building app..."
+          echo "Hello World" > hello.txt
+
+      - name: Run tests (placeholder)
+        run: |
+          echo "Running tests..."
+          grep "Hello" hello.txt
+
+      - name: Add SSH key for Monitoring EC2
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Monitoring EC2
+        run: |
+          scp hello.txt ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            echo "Deployed content:"
+            cat ~/hello.txt
+          EOF
