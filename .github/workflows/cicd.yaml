@@ -15,12 +15,12 @@ jobs:
       - name: Build Hello World
         run: |
           echo "Building app..."
-          echo "Hello World" > hello.txt
+          echo "Hello World" > hello1.txt
 
       - name: Run tests (placeholder)
         run: |
           echo "Running tests..."
-          grep "Hello" hello.txt
+          grep "Hello" hello1.txt
 
       - name: Add SSH key for Monitoring EC2
         run: |
@@ -31,8 +31,8 @@ jobs:
 
       - name: Deploy to Monitoring EC2
         run: |
-          scp hello.txt ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+          scp hello1.txt ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
           ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             echo "Deployed content:"
-            cat ~/hello.txt
+            cat ~/hello1.txt
           EOF
