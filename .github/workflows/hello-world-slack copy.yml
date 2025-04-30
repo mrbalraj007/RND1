@@ -31,14 +31,13 @@ jobs:
         fields: workflow,job,commit,repo,ref,author,took
         custom_payload: |
           {
-            "attachments": [
-              {
+            "attachments": [              {
                 "color": "#36a64f",
-                "pretext": "✅ Pipeline Completed Successfully",
+                "pretext": "✅ Pipeline Completed Successfully 🎉",
                 "author_name": "${{ github.actor }}",
                 "title": "${{ github.repository }}",
                 "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                "text": "The pipeline has completed successfully! :rocket:",
+                "text": "*The pipeline has completed successfully!* :rocket: :white_check_mark:",
                 "fields": [
                   {
                     "title": "Repository",
@@ -83,10 +82,9 @@ jobs:
         fields: workflow,job,commit,repo,ref,author,took
         custom_payload: |
           {
-            "attachments": [
-              {
-                "color": "#DC143C",
-                "pretext": "❌ Pipeline Failed",
+            "attachments": [              {
+                "color": "#FF0000",
+                "pretext": "❌ Pipeline Failed ⚠️",
                 "author_name": "${{ github.actor }}",
                 "title": "${{ github.repository }}",
                 "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
