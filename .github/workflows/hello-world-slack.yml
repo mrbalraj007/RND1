@@ -1,0 +1,55 @@
+name: Hello World with Slack Notification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Run a Hello World script
+      run: echo "Hello, World!"
+      
+    - name: Send Slack notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
+          {
+            "attachments": [
+              {
+                "color": "#36a64f",
+                "pretext": "Hello World Pipeline Completed",
+                "author_name": "${{ github.actor }}",
+                "title": "${{ github.repository }}",
+                "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "text": "The pipeline has completed successfully! :rocket:",
+                "fields": [
+                  {
+                    "title": "Repository",
+                    "value": "${{ github.repository }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "short": true
+                  }
+                ],
+                "footer": "GitHub Actions",
+                "footer_icon": "https://github.githubassets.com/favicon.ico",
+                "ts": "${{ env.ts }}"
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        ts: ${{ steps.timestamp.outputs.time }}
