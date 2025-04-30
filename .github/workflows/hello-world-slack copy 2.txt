@@ -1,0 +1,106 @@
+name: Hello World with Slack Notification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Run a Hello World script
+      run: echo "Hello, World!"
+      
+    - name: Get current time
+      id: timestamp
+      run: echo "time=$(date +%s)" >> $GITHUB_OUTPUT
+      
+    - name: Send Slack notification on success
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
+          {
+            "attachments": [
+              {
+                "color": "#36a64f",
+                "pretext": "✅ Pipeline Completed Successfully",
+                "author_name": "${{ github.actor }}",
+                "title": "${{ github.repository }}",
+                "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "text": "The pipeline has completed successfully! :rocket:",
+                "fields": [
+                  {
+                    "title": "Repository",
+                    "value": "${{ github.repository }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Status",
+                    "value": "Success ✅",
+                    "short": true
+                  }
+                ],
+                "footer": "GitHub Actions",
+                "footer_icon": "https://github.githubassets.com/favicon.ico",
+                "ts": "${{ steps.timestamp.outputs.time }}"
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        
+    - name: Send Slack notification on failure
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        fields: workflow,job,commit,repo,ref,author,took
+        custom_payload: |
+          {
+            "attachments": [
+              {
+                "color": "#DC143C",
+                "pretext": "❌ Pipeline Failed",
+                "author_name": "${{ github.actor }}",
+                "title": "${{ github.repository }}",
+                "title_link": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "text": "The pipeline has failed! Please check the logs for more details. :warning:",
+                "fields": [
+                  {
+                    "title": "Repository",
+                    "value": "${{ github.repository }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Status",
+                    "value": "Failed ❌",
+                    "short": true
+                  }
+                ],
+                "footer": "GitHub Actions",
+                "footer_icon": "https://github.githubassets.com/favicon.ico",
+                "ts": "${{ steps.timestamp.outputs.time }}"
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
