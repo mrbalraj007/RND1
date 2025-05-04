@@ -7,21 +7,26 @@ ami_virtualization_type = "hvm"
 ami_owners              = ["099720109477"]
 
 # Instance Configuration
-instance_type    = "t3.small"
+instance_type    = "t3.micro"
 key_name         = "MYLABKEY"
 private_key_path = "MYLABKEY.pem"
 instance_tags = {
   Name = "runner-Trivy"
 }
 root_volume_size = 8
-count = 2
+instance_count   = 2
 
 # Security Group Configuration
-sg_name        = "runner-SG"
-sg_description = "Allow inbound traffic"
+sg_name          = "runner-SG"
+sg_description   = "Allow inbound traffic"
 sg_ingress_ports = [25, 22, 80, 443, 6443, 465, 8080, 9000, 3000]
 sg_custom_port_range = {
   from_port = 2000
   to_port   = 11000
 }
 sg_cidr_blocks = ["0.0.0.0/0"]
+
+# Spot Instance Configuration
+spot_price                 = "0.03" # Set your maximum bid price
+spot_instance_type         = "persistent"
+spot_interruption_behavior = "stop"

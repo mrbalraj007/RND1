@@ -24,6 +24,25 @@ variable "ami_owners" {
   default     = ["099720109477"] # Canonical owner ID for Ubuntu AMIs
 }
 
+# Spot Instance Configuration
+variable "spot_price" {
+  description = "Maximum price to pay for the spot instance (USD per hour)"
+  type        = string
+  default     = "0.03" # Example price, adjust based on your budget
+}
+
+variable "spot_instance_type" {
+  description = "The Spot Instance request type"
+  type        = string
+  default     = "persistent" # Options: one-time, persistent
+}
+
+variable "spot_interruption_behavior" {
+  description = "The behavior when a Spot Instance is interrupted"
+  type        = string
+  default     = "stop" # Options: hibernate, stop, terminate
+}
+
 # Instance Configuration
 variable "instance_type" {
   description = "EC2 instance type"
@@ -89,8 +108,8 @@ variable "sg_cidr_blocks" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "count" {
+variable "instance_count" {
   description = "Number of instances to create"
   type        = number
   default     = 2
-  }
+}

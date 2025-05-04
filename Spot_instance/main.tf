@@ -22,8 +22,18 @@ resource "aws_instance" "runner-svr" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.runner-VM-SG.id]
   user_data              = templatefile("./runner_install.sh", {})
-count = var.count
-  tags = var.instance_tags
+  count                  = var.instance_count
+  tags                   = var.instance_tags
+
+  # Spot instance configuration
+  instance_market_options {
+    market_type = "spot"
+    spot_options {
+      max_price                     = var.spot_price
+      spot_instance_type            = var.spot_instance_type
+      instance_interruption_behavior = var.spot_interruption_behavior
+    }
+  }
 
   root_block_device {
     volume_size = var.root_volume_size
