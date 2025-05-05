@@ -1,0 +1,124 @@
+# AWS Region
+variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+# AMI Configuration
+variable "ami_filter_name" {
+  description = "Filter name for AMI selection"
+  type        = string
+  default     = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server*"
+}
+
+variable "ami_virtualization_type" {
+  description = "Virtualization type for AMI"
+  type        = string
+  default     = "hvm"
+}
+
+variable "ami_owners" {
+  description = "Owner ID for AMI filtering"
+  type        = list(string)
+  default     = ["099720109477"] # Canonical owner ID for Ubuntu AMIs
+}
+
+# Spot Instance Configuration
+variable "spot_price" {
+  description = "Maximum price to pay for the spot instance (USD per hour)"
+  type        = string
+  default     = "0.03" # Example price, adjust based on your budget
+}
+
+variable "spot_instance_type" {
+  description = "The Spot Instance request type"
+  type        = string
+  default     = "persistent" # Options: one-time, persistent
+}
+
+variable "spot_interruption_behavior" {
+  description = "The behavior when a Spot Instance is interrupted"
+  type        = string
+  default     = "stop" # Options: hibernate, stop, terminate
+}
+
+# Instance Configuration
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t3.small"
+}
+
+variable "key_name" {
+  description = "SSH key pair name"
+  type        = string
+}
+
+variable "instance_tags" {
+  description = "Tags to apply to the instance"
+  type        = map(string)
+  default = {
+    Name         = "runner-Trivy"
+    Application  = "Runner"
+    Availability = "24x7"
+    Backup       = "Daily"
+    CostCentre   = "IT-123"
+    CreatedBy    = "Terraform"
+    Division     = "DevOps"
+    Environment  = "Development"
+    ManagedBy    = "DevOps-Team"
+    Owner        = "Operations"
+  }
+}
+
+variable "root_volume_size" {
+  description = "Size of the root volume in GB"
+  type        = number
+  default     = 25
+}
+
+variable "private_key_path" {
+  description = "Path to the private key file for SSH connections"
+  type        = string
+}
+
+# Security Group Configuration
+variable "sg_name" {
+  description = "Name of the security group"
+  type        = string
+  default     = "runner-SG"
+}
+
+variable "sg_description" {
+  description = "Description of the security group"
+  type        = string
+  default     = "Allow inbound traffic"
+}
+
+variable "sg_ingress_ports" {
+  description = "List of ingress ports to open"
+  type        = list(number)
+  default     = [25, 22, 80, 443, 6443, 465, 8080, 9000, 3000]
+}
+
+variable "sg_custom_port_range" {
+  description = "Custom TCP port range"
+  type        = map(number)
+  default = {
+    from_port = 2000
+    to_port   = 11000
+  }
+}
+
+variable "sg_cidr_blocks" {
+  description = "CIDR blocks for security group rules"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "instance_count" {
+  description = "Number of instances to create"
+  type        = number
+  default     = 2
+}

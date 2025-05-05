@@ -11,7 +11,16 @@ instance_type    = "t2.micro"
 key_name         = "MYLABKEY"
 private_key_path = "MYLABKEY.pem"
 instance_tags = {
-  Name = "runner-Trivy"
+  Name         = "runner-Trivy"
+  Application  = "GitHubRunner"
+  Availability = "24x7"
+  Backup       = "Daily"
+  CostCentre   = "DevOps-101"
+  CreatedBy    = "Terraform"
+  Division     = "Engineering"
+  Environment  = "Development"
+  ManagedBy    = "Infrastructure-Team"
+  Owner        = "John Doe"
 }
 root_volume_size = 8
 instance_count   = 2
