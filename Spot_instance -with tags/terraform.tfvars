@@ -20,7 +20,7 @@ instance_tags = {
   Division     = "Engineering"
   Environment  = "Development"
   ManagedBy    = "Infrastructure-Team"
-  Owner        = "John Doe"
+  Owner        = "Aarav KUMAR"
 }
 root_volume_size = 8
 instance_count   = 2
