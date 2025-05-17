@@ -1,104 +1,94 @@
-# Fetch the latest Ubuntu AMI
+# Fetch the latest Ubuntu 24.04 LTS AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = [var.ami_filter_name]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server*"] # For Ubuntu Instance.
+    #values = ["amzn2-ami-hvm-*-x86_64*"] # For Amazon Instance.
   }
 
   filter {
     name   = "virtualization-type"
-    values = [var.ami_virtualization_type]
+    values = ["hvm"]
   }
 
-  owners = var.ami_owners
+  owners = ["099720109477"] # Canonical owner ID for Ubuntu AMIs
+  # owners = ["137112412989"] # Amazon owner ID for Amazon Linux AMIs
 }
 
 
-resource "aws_instance" "runner-svr" {
+resource "aws_instance" "jenkins-svr" {
+  count                  = 2 # Create two instances
   ami                    = data.aws_ami.ubuntu.id
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.runner-VM-SG.id]
-  user_data              = templatefile("./runner_install.sh", {})
-  count                  = var.instance_count
-  tags                   = var.instance_tags
+  instance_type          = "t2.micro"
+  key_name               = "MYLABKEY" #change key name as per your setup
+  vpc_security_group_ids = [aws_security_group.Jenkins-VM-SG.id]
+  user_data              = templatefile("./jenkins_install.sh", {})
 
-  # Spot instance configuration
   instance_market_options {
     market_type = "spot"
     spot_options {
-      max_price                      = var.spot_price
-      spot_instance_type             = var.spot_instance_type
-      instance_interruption_behavior = var.spot_interruption_behavior
+      max_price = "0.0051" # Set your maximum price for the spot instance
     }
+  }
+
+  tags = {
+    Name = "Jenkins-Trivy-${count.index + 1}" # This will create Jenkins-Trivy-1 and Jenkins-Trivy-2
   }
 
   root_block_device {
-    volume_size = var.root_volume_size
-  }
-
-  # Copy the actions-runner folder after the instance is created
-  provisioner "file" {
-    source      = "./actions-runner"
-    destination = "/home/ubuntu/"
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file(var.private_key_path)
-      host        = self.public_ip
-    }
-  }
-
-  # Set appropriate ownership for the copied folder
-  provisioner "remote-exec" {
-    inline = [
-      "ls -la /home/ubuntu/actions-runner",
-      "sudo chown -R ubuntu:ubuntu /home/ubuntu/actions-runner"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = file(var.private_key_path)
-      host        = self.public_ip
-    }
+    volume_size = 8
   }
 }
 
-resource "aws_security_group" "runner-VM-SG" {
-  name        = var.sg_name
-  description = var.sg_description
+resource "aws_security_group" "Jenkins-VM-SG" {
+  name        = "Jenkins-SG"
+  description = "Allow inbound traffic"
 
   dynamic "ingress" {
-    for_each = toset(var.sg_ingress_ports)
+    for_each = toset([25, 22, 80, 443, 6443, 465, 8080, 9000, 3000])
     content {
       description = "inbound rule for port ${ingress.value}"
       from_port   = ingress.value
       to_port     = ingress.value
       protocol    = "tcp"
-      cidr_blocks = var.sg_cidr_blocks
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 
   ingress {
     description = "Custom TCP Port Range"
-    from_port   = var.sg_custom_port_range.from_port
-    to_port     = var.sg_custom_port_range.to_port
+    from_port   = 2000
+    to_port     = 11000
     protocol    = "tcp"
-    cidr_blocks = var.sg_cidr_blocks
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = var.sg_cidr_blocks
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name = "${var.sg_name}"
+    Name = "Jenkins-VM-SG"
   }
+}
+
+output "instance_ips" {
+  value       = aws_instance.jenkins-svr[*].public_ip
+  description = "The public IPs of the Jenkins instances"
+}
+
+# You can also get individual IPs if needed
+output "jenkins_instance_1_ip" {
+  value       = aws_instance.jenkins-svr[0].public_ip
+  description = "Public IP of the first Jenkins instance"
+}
+
+output "jenkins_instance_2_ip" {
+  value       = aws_instance.jenkins-svr[1].public_ip
+  description = "Public IP of the second Jenkins instance"
 }
