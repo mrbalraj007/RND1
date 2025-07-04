@@ -54,3 +54,17 @@ echo "Docker: $(sudo systemctl is-active docker)"
 
 # To clone the repository
 git clone https://github.com/techmahato-com/Netflix-Clone-on-ECS.git
+
+# To find the repository
+sudo find / -type d -name 'Netflix-Clone-on-ECS'
+
+# Moved directory to the cloned repository
+mv Netflix-Clone-on-ECS /home/ubuntu/Netflix-Clone-on-ECS
+
+
+# Change ownership of the cloned repository 
+sudo chown -R ubuntu:ubuntu /home/ubuntu/Netflix-Clone-on-ECS
+# Change permissions of the cloned repository
+sudo chmod -R 755 /home/ubuntu/Netflix-Clone-on-ECS
+# Change to the cloned repository directory
+cd /home/ubuntu/Netflix-Clone-on-ECS
