@@ -12,8 +12,10 @@
 crash.log
 *.exe
 
+*.exe
 
 # Ignore the terraform state files
+.terraform/*
 terraform.tfstate
 terraform.tfstate.backup
 
