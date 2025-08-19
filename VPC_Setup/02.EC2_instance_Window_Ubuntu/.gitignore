@@ -4,6 +4,15 @@
 # Ignore the terraform lock file
 .terraform.lock.hcl
 
+
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+*.exe
+
+
 # Ignore the terraform state files
 terraform.tfstate
 terraform.tfstate.backup
